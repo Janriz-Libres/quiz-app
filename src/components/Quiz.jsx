@@ -47,9 +47,9 @@ export default function Quiz() {
     );
   }
 
-  const shuffledAnswers = [...QUESTIONS[questionIdx].answers].sort(() => {
-    Math.random() - 0.5;
-  });
+  const shuffledAnswers = [...QUESTIONS[questionIdx].answers].sort(
+    () => Math.random() - 0.5
+  );
 
   return (
     <div id="quiz">
