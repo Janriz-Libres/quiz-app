@@ -9,9 +9,9 @@ export default function Quiz() {
   const questionIdx = answers.length;
   const quizOver = questionIdx === QUESTIONS.length;
 
-  function handleSelectAnswer(answer) {
+  const handleSelectAnswer = useCallback((answer) => {
     setAnswers((prev) => [...prev, answer]);
-  }
+  }, []);
 
   if (quizOver) {
     return (
@@ -30,8 +30,9 @@ export default function Quiz() {
     <div id="quiz">
       <div id="question">
         <QuestionTimer
+          key={questionIdx}
           timeout={10000}
-          onTimeout={useCallback(() => handleSelectAnswer(null), [])}
+          onTimeout={handleSelectAnswer}
         />
         <h2>{QUESTIONS[questionIdx].text}</h2>
         <ul id="answers">
