@@ -1,42 +1,67 @@
 import { useCallback, useState } from "react";
-import QUESTIONS from "../questions";
-import quizCompleteImg from "../assets/quiz-complete.png";
 import QuestionTimer from "./QuestionTimer";
+import Answers from "./Answers";
+import quizCompleteImg from "../assets/quiz-complete.png";
+import QUESTIONS from "../questions";
 
-const AnswerStates = Object.freeze({
-  UNANSWERED: Symbol("unanswered"),
-  ANSWERED: Symbol("answered"),
-  CORRECT: Symbol("correct"),
-  WRONG: Symbol("wrong"),
-});
+function getQuestionIdx(answerState, answers) {
+  return answerState.selectedAnswer === ""
+    ? answers.length
+    : answers.length - 1;
+}
+
+function getTimer(answerState) {
+  if (answerState.isCorrect !== null) return 2000;
+  if (answerState.selectedAnswer) return 1000;
+  return 10000;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default function Quiz() {
-  const [answerState, setAnswerState] = useState(AnswerStates.UNANSWERED);
+  const [answerState, setAnswerState] = useState({
+    selectedAnswer: "",
+    isCorrect: null,
+  });
   const [answers, setAnswers] = useState([]);
 
-  const questionIdx =
-    answerState === AnswerStates.UNANSWERED
-      ? answers.length
-      : answers.length - 1;
+  const questionIdx = getQuestionIdx(answerState, answers);
   const quizOver = questionIdx === QUESTIONS.length;
+  const timer = getTimer(answerState);
 
   const handleSelectAnswer = useCallback(
-    (answer) => {
-      setAnswerState(AnswerStates.ANSWERED);
+    async (answer) => {
+      setAnswerState((prev) => ({
+        ...prev,
+        selectedAnswer: answer,
+      }));
       setAnswers((prev) => [...prev, answer]);
 
-      setTimeout(() => {
-        if (answer === QUESTIONS[questionIdx].answers[0]) {
-          setAnswerState(AnswerStates.CORRECT);
-        } else {
-          setAnswerState(AnswerStates.WRONG);
-        }
+      setTimeout(1000);
+      await delay(1000);
 
-        setTimeout(() => setAnswerState(AnswerStates.UNANSWERED), 2000);
-      }, 1000);
+      setAnswerState((prev) => ({
+        ...prev,
+        isCorrect: answer === QUESTIONS[questionIdx].answers[0],
+      }));
+
+      setTimeout(2000);
+      await delay(2000);
+
+      setAnswerState((prev) => ({
+        ...prev,
+        selectedAnswer: "",
+        isCorrect: null,
+      }));
     },
     [questionIdx]
   );
+
+  const handleSkipAnswer = useCallback(() => {
+    setAnswers((prev) => [...prev, null]);
+  }, []);
 
   if (quizOver) {
     return (
@@ -47,48 +72,20 @@ export default function Quiz() {
     );
   }
 
-  const shuffledAnswers = [...QUESTIONS[questionIdx].answers].sort(
-    () => Math.random() - 0.5
-  );
-
   return (
     <div id="quiz">
-      <div id="question">
+      <div id="question" key={questionIdx}>
         <QuestionTimer
-          key={questionIdx}
-          timeout={10000}
-          onTimeout={handleSelectAnswer}
+          key={timer}
+          timeout={timer}
+          onTimeout={handleSkipAnswer}
         />
         <h2>{QUESTIONS[questionIdx].text}</h2>
-        <ul id="answers">
-          {shuffledAnswers.map((answer) => {
-            const isSelected = answers[answers.length - 1] === answer;
-
-            let cssClasses = "";
-
-            switch (answerState) {
-              case AnswerStates.ANSWERED:
-                cssClasses = "selected";
-                break;
-              case AnswerStates.CORRECT:
-                cssClasses = "correct";
-                break;
-              case AnswerStates.WRONG:
-                cssClasses = "wrong";
-            }
-
-            return (
-              <li key={answer} className="answer">
-                <button
-                  onClick={() => handleSelectAnswer(answer)}
-                  className={`${isSelected ? cssClasses : ""}`}
-                >
-                  {answer}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <Answers
+          answers={QUESTIONS[questionIdx].answers}
+          answerState={answerState}
+          onSelect={handleSelectAnswer}
+        />
       </div>
     </div>
   );
