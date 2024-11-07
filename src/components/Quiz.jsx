@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
 import QuestionTimer from "./QuestionTimer";
 import Answers from "./Answers";
-import quizCompleteImg from "../assets/quiz-complete.png";
 import QUESTIONS from "../questions";
+import { Timers } from "../constants";
+import Summary from "./Summary";
 
 function getQuestionIdx(answerState, answers) {
   return answerState.selectedAnswer === ""
@@ -11,9 +12,9 @@ function getQuestionIdx(answerState, answers) {
 }
 
 function getTimer(answerState) {
-  if (answerState.isCorrect !== null) return 2000;
-  if (answerState.selectedAnswer) return 1000;
-  return 10000;
+  if (answerState.isCorrect !== null) return Timers.scored;
+  if (answerState.selectedAnswer) return Timers.answered;
+  return Timers.unanswered;
 }
 
 function delay(ms) {
@@ -38,17 +39,13 @@ export default function Quiz() {
     }));
     setAnswers((prev) => [...prev, answer]);
 
-    setTimeout(1000);
-    await delay(1000);
-
+    await delay(Timers.answered);
     setAnswerState((prev) => ({
       ...prev,
       isCorrect: answer === QUESTIONS[questionIdx].answers[0],
     }));
 
-    setTimeout(2000);
-    await delay(2000);
-
+    await delay(Timers.scored);
     setAnswerState((prev) => ({
       ...prev,
       selectedAnswer: "",
@@ -61,12 +58,7 @@ export default function Quiz() {
   }, []);
 
   if (quizOver) {
-    return (
-      <div id="summary">
-        <img src={quizCompleteImg} alt="Quiz complete" />
-        <h2>Quiz Completed!</h2>
-      </div>
-    );
+    return <Summary answers={answers} />;
   }
 
   return (

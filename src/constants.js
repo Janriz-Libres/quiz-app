@@ -1,6 +1,5 @@
-export const AnswerStates = Object.freeze({
-  UNANSWERED: Symbol("unanswered"),
-  ANSWERED: Symbol("answered"),
-  CORRECT: Symbol("correct"),
-  WRONG: Symbol("wrong"),
+export const Timers = Object.freeze({
+  unanswered: 10000,
+  answered: 1000,
+  scored: 2000,
 });

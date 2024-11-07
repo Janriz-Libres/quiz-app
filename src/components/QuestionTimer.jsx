@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { Timers } from "../constants";
+
+const TIME_INTERVAL = 100;
 
 export default function QuestionTimer({ timeout, onTimeout }) {
   const [remainingTime, setRemainingTime] = useState(timeout);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (timeout === 10000) {
+      if (timeout === Timers.unanswered) {
         onTimeout(null);
       }
     }, timeout);
@@ -15,8 +18,8 @@ export default function QuestionTimer({ timeout, onTimeout }) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRemainingTime((prev) => prev - 100);
-    }, 100);
+      setRemainingTime((prev) => prev - TIME_INTERVAL);
+    }, TIME_INTERVAL);
 
     return () => clearInterval(interval);
   }, []);
@@ -26,7 +29,7 @@ export default function QuestionTimer({ timeout, onTimeout }) {
       id="question-time"
       value={remainingTime}
       max={timeout}
-      className={timeout === 1000 ? "answered" : undefined}
+      className={timeout === Timers.answered ? "answered" : undefined}
     />
   );
 }
