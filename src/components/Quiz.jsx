@@ -31,33 +31,30 @@ export default function Quiz() {
   const quizOver = questionIdx === QUESTIONS.length;
   const timer = getTimer(answerState);
 
-  const handleSelectAnswer = useCallback(
-    async (answer) => {
-      setAnswerState((prev) => ({
-        ...prev,
-        selectedAnswer: answer,
-      }));
-      setAnswers((prev) => [...prev, answer]);
+  async function handleSelectAnswer(answer) {
+    setAnswerState((prev) => ({
+      ...prev,
+      selectedAnswer: answer,
+    }));
+    setAnswers((prev) => [...prev, answer]);
 
-      setTimeout(1000);
-      await delay(1000);
+    setTimeout(1000);
+    await delay(1000);
 
-      setAnswerState((prev) => ({
-        ...prev,
-        isCorrect: answer === QUESTIONS[questionIdx].answers[0],
-      }));
+    setAnswerState((prev) => ({
+      ...prev,
+      isCorrect: answer === QUESTIONS[questionIdx].answers[0],
+    }));
 
-      setTimeout(2000);
-      await delay(2000);
+    setTimeout(2000);
+    await delay(2000);
 
-      setAnswerState((prev) => ({
-        ...prev,
-        selectedAnswer: "",
-        isCorrect: null,
-      }));
-    },
-    [questionIdx]
-  );
+    setAnswerState((prev) => ({
+      ...prev,
+      selectedAnswer: "",
+      isCorrect: null,
+    }));
+  }
 
   const handleSkipAnswer = useCallback(() => {
     setAnswers((prev) => [...prev, null]);
